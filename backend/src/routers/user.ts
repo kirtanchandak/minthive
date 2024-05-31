@@ -2,8 +2,6 @@ import { PrismaClient } from "@prisma/client";
 import { Router } from "express";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = "chandak";
-
 const router = Router();
 
 const prismaClient = new PrismaClient();
@@ -22,8 +20,9 @@ router.post("/signin", async (req, res) => {
       {
         userId: existingUser.id,
       },
-      JWT_SECRET
+      process.env.JWT_SECRET ?? ""
     );
+    console.log(process.env.JWT_SECRET);
     res.json({
       token,
     });
@@ -37,7 +36,7 @@ router.post("/signin", async (req, res) => {
       {
         userId: user.id,
       },
-      JWT_SECRET
+      process.env.JWT_SECRET ?? ""
     );
     res.json({
       token,

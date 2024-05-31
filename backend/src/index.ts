@@ -1,7 +1,8 @@
 import express from "express";
 import userRouter from "./routers/user";
 import workerRouter from "./routers/worker";
-import { Router } from "express";
+
+export const JWT_SECRET = "chandak";
 
 const app = express();
 

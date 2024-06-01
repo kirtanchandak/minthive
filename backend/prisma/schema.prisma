@@ -20,14 +20,15 @@ model User {
 }
 
 model Task {
-  id         Int          @id @default(autoincrement())
-  title      String
-  options    Option[]
-  user_id    Int
-  signature  String
-  amount     String
-  user       User         @relation(fields: [user_id], references: [id])
-  Submission Submission[]
+  id          Int          @id @default(autoincrement())
+  title       String
+  options     Option[]
+  user_id     Int
+  signature   String
+  amount      String
+  done        Boolean      @default(false)
+  user        User         @relation(fields: [user_id], references: [id])
+  submissions Submission[]
 }
 
 model Option {
@@ -43,7 +44,7 @@ model Worker {
   address        String       @unique
   submission     Submission[]
   pending_amount Int
-  locaked_amount Int
+  locked_amount  Int
 }
 
 model Submission {

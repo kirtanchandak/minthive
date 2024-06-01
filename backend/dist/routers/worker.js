@@ -15,8 +15,37 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const client_1 = require("@prisma/client");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const middleware_1 = require("../middleware");
 const router = (0, express_1.Router)();
 const prismaClient = new client_1.PrismaClient();
+router.get("/nextTask", middleware_1.authWorkerMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    //@ts-ignore
+    const userId = req.userId;
+    const task = yield prismaClient.task.findFirst({
+        where: {
+            done: false,
+            submissions: {
+                none: {
+                    worker_id: userId,
+                },
+            },
+        },
+        select: {
+            title: true,
+            options: true,
+        },
+    });
+    if (!task) {
+        res.status(411).json({
+            message: "There are no tasks for you to review",
+        });
+    }
+    else {
+        res.status(411).json({
+            task,
+        });
+    }
+}));
 router.post("/signin", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     const hardCodedWalletAddress = "0x3D68b6bE0fA7aeea256cef433373B5a81348ab3a";

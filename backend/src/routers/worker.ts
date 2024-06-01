@@ -7,6 +7,36 @@ const router = Router();
 
 const prismaClient = new PrismaClient();
 
+router.get("/nextTask", authWorkerMiddleware, async (req, res) => {
+  //@ts-ignore
+  const userId = req.userId;
+
+  const task = await prismaClient.task.findFirst({
+    where: {
+      done: false,
+      submissions: {
+        none: {
+          worker_id: userId,
+        },
+      },
+    },
+    select: {
+      title: true,
+      options: true,
+    },
+  });
+
+  if (!task) {
+    res.status(411).json({
+      message: "There are no tasks for you to review",
+    });
+  } else {
+    res.status(411).json({
+      task,
+    });
+  }
+});
+
 router.post("/signin", async (req, res) => {
   const hardCodedWalletAddress = "0x3D68b6bE0fA7aeea256cef433373B5a81348ab3a";
 

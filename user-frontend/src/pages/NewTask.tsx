@@ -1,12 +1,58 @@
-import { useState } from "react";
+import { useState, ChangeEvent } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+interface TaskPayload {
+  title: string;
+  options: { imageUrl: string }[];
+  signature: string;
+}
 
 function NewTask() {
-  const [title, setTitle] = useState("");
+  let navigate = useNavigate();
+  const [title, setTitle] = useState<string>("");
+  const [images, setImages] = useState<string[]>([""]);
+
+  const handleImageChange = (index: number, value: string) => {
+    const newImages = [...images];
+    newImages[index] = value;
+    setImages(newImages);
+  };
+
+  const handleAddImage = () => {
+    setImages([...images, ""]);
+  };
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    const payload: TaskPayload = {
+      title,
+      options: images.map((imageUrl) => ({ imageUrl })),
+      signature: "sdljbglm",
+    };
+
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/v1/user/task",
+        payload,
+        {
+          headers: {
+            Authorization:
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTcxNzIzMzU4M30.kf4PU_qnH7dXVupHv5IITw7q7jBeourLZoKZfVXMqDk",
+          },
+        }
+      );
+      navigate(`/task/${response.data.id}`);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <>
       <div className="text-center">
         <p className="text-2xl font-bold mt-8">
-          Post a task for the workers to give thier valuable feedback!
+          Post a task for the workers to give their valuable feedback!
         </p>
         <div className="flex justify-center">
           <div className="max-w-screen-lg w-full">
@@ -15,11 +61,11 @@ function NewTask() {
             </div>
 
             <input
-              onChange={(e) => {
-                setTitle(e.target.value);
-              }}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setTitle(e.target.value)
+              }
               type="text"
-              id="first_name"
+              id="task_title"
               className="ml-4 mt-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
               placeholder="What is your task?"
               required
@@ -28,14 +74,35 @@ function NewTask() {
             <label className="pl-4 block mt-8 text-md font-medium text-gray-900 text-black">
               Add Images
             </label>
-            <div className="flex justify-center pt-4 max-w-screen-lg"></div>
 
-            <div className="ml-4 pt-2 flex justify-center"></div>
+            {images.map((image, index) => (
+              <input
+                key={index}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  handleImageChange(index, e.target.value)
+                }
+                type="text"
+                id={`image_${index}`}
+                className="ml-4 mt-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                placeholder="Paste image URL here"
+                value={image}
+                required
+              />
+            ))}
+
+            <button
+              onClick={handleAddImage}
+              type="button"
+              className="ml-4 mt-4 text-white bg-blue-500 font-medium rounded-full text-sm px-5 py-2.5 me-2 mb-2"
+            >
+              Add Another Image
+            </button>
 
             <div className="flex justify-center">
               <button
+                onClick={handleSubmit}
                 type="button"
-                className="mt-4 text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-full text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700"
+                className="mt-4 text-white bg-green-500 font-medium rounded-full text-sm px-5 py-2.5 me-2 mb-2"
               >
                 Submit Task
               </button>

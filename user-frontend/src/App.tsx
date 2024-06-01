@@ -1,9 +1,17 @@
 import "./App.css";
+import { Route, Routes } from "react-router-dom";
+import Home from "./pages/Home";
+import NewTask from "./pages/NewTask";
+import AppBar from "./components/AppBar";
 
 function App() {
   return (
     <>
-      <p className="text-3xl text-red-400">Web3 Solana Init!</p>
+      <AppBar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/newTask" element={<NewTask />} />
+      </Routes>
     </>
   );
 }

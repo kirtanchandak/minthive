@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import NewTask from "./pages/NewTask";
 import AppBar from "./components/AppBar";
+import TaskDetails from "./pages/TaskDetails";
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/newTask" element={<NewTask />} />
+        <Route path="/task/:taskId" element={<TaskDetails />} />
       </Routes>
     </>
   );

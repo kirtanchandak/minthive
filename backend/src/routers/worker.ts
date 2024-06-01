@@ -5,11 +5,78 @@ import { authWorkerMiddleware } from "../middleware";
 import { getNextTask } from "../db";
 import { createSubmissionInput } from "../types";
 import { TOTAL_DECIMALS } from "./user";
+import { date } from "zod";
 
 const router = Router();
 
 const prismaClient = new PrismaClient();
 const TOTAL_SUBMISSIONS = 100;
+
+router.post("/payout", authWorkerMiddleware, async (req, res) => {
+  // @ts-ignore
+  const userId: string = req.userId;
+
+  const worker = await prismaClient.worker.findFirst({
+    where: { id: Number(userId) },
+  });
+
+  if (!worker) {
+    return res.status(403).json({
+      message: "Worker not found!",
+    });
+  }
+
+  const address = worker.address;
+
+  //logic here after solana
+  const txnId = "473987493";
+
+  await prismaClient.$transaction(async (tx) => {
+    await tx.worker.update({
+      where: {
+        id: Number(userId),
+      },
+      data: {
+        pending_amount: {
+          decrement: worker.pending_amount,
+        },
+        locked_amount: {
+          increment: worker.pending_amount,
+        },
+      },
+    });
+    await tx.payouts.create({
+      data: {
+        user_id: Number(userId),
+        amount: worker.pending_amount,
+        status: "Processing",
+        signature: txnId,
+      },
+    });
+  });
+
+  // send the amount to solana blokchain
+  res.json({
+    message: "Processing",
+    amount: worker.pending_amount,
+  });
+});
+
+router.get("/balance", authWorkerMiddleware, async (req, res) => {
+  // @ts-ignore
+  const userId: string = req.userId;
+
+  const worker = await prismaClient.worker.findFirst({
+    where: {
+      id: Number(userId),
+    },
+  });
+
+  res.json({
+    pendingAmount: worker?.pending_amount,
+    lockedAmount: worker?.pending_amount,
+  });
+});
 
 router.post("/submission", authWorkerMiddleware, async (req, res) => {
   // @ts-ignore

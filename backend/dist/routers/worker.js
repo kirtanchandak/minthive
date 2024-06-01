@@ -21,6 +21,62 @@ const types_1 = require("../types");
 const router = (0, express_1.Router)();
 const prismaClient = new client_1.PrismaClient();
 const TOTAL_SUBMISSIONS = 100;
+router.post("/payout", middleware_1.authWorkerMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    // @ts-ignore
+    const userId = req.userId;
+    const worker = yield prismaClient.worker.findFirst({
+        where: { id: Number(userId) },
+    });
+    if (!worker) {
+        return res.status(403).json({
+            message: "Worker not found!",
+        });
+    }
+    const address = worker.address;
+    //logic here after solana
+    const txnId = "473987493";
+    yield prismaClient.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
+        yield tx.worker.update({
+            where: {
+                id: Number(userId),
+            },
+            data: {
+                pending_amount: {
+                    decrement: worker.pending_amount,
+                },
+                locked_amount: {
+                    increment: worker.pending_amount,
+                },
+            },
+        });
+        yield tx.payouts.create({
+            data: {
+                user_id: Number(userId),
+                amount: worker.pending_amount,
+                status: "Processing",
+                signature: txnId,
+            },
+        });
+    }));
+    // send the amount to solana blokchain
+    res.json({
+        message: "Processing",
+        amount: worker.pending_amount,
+    });
+}));
+router.get("/balance", middleware_1.authWorkerMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    // @ts-ignore
+    const userId = req.userId;
+    const worker = yield prismaClient.worker.findFirst({
+        where: {
+            id: Number(userId),
+        },
+    });
+    res.json({
+        pendingAmount: worker === null || worker === void 0 ? void 0 : worker.pending_amount,
+        lockedAmount: worker === null || worker === void 0 ? void 0 : worker.pending_amount,
+    });
+}));
 router.post("/submission", middleware_1.authWorkerMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     // @ts-ignore
     const userId = req.userId;

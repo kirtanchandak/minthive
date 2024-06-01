@@ -3,12 +3,14 @@ import { Router } from "express";
 import jwt from "jsonwebtoken";
 import { createTaskInput } from "../types";
 import { authMiddleware } from "../middleware";
+import { date } from "zod";
 
 const DEFAULT_TITLE = "Upload thumbanails, to select the best one!";
 
 const router = Router();
 
 const prismaClient = new PrismaClient();
+export const TOTAL_DECIMALS = 1000_000;
 
 router.get("/task", authMiddleware, async (req, res) => {
   // @ts-ignore
@@ -88,7 +90,7 @@ router.post("/task", authMiddleware, async (req, res) => {
     const response = await tx.task.create({
       data: {
         title: parseData.data.title ?? DEFAULT_TITLE,
-        amount: "1",
+        amount: 1 * TOTAL_DECIMALS,
         signature: parseData.data.signature,
         user_id: userId,
       },

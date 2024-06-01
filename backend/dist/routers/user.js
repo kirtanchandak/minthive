@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.TOTAL_DECIMALS = void 0;
 const client_1 = require("@prisma/client");
 const express_1 = require("express");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -20,6 +21,7 @@ const middleware_1 = require("../middleware");
 const DEFAULT_TITLE = "Upload thumbanails, to select the best one!";
 const router = (0, express_1.Router)();
 const prismaClient = new client_1.PrismaClient();
+exports.TOTAL_DECIMALS = 1000000;
 router.get("/task", middleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     // @ts-ignore
     const taskId = req.query.taskId;
@@ -80,7 +82,7 @@ router.post("/task", middleware_1.authMiddleware, (req, res) => __awaiter(void 0
         const response = yield tx.task.create({
             data: {
                 title: (_a = parseData.data.title) !== null && _a !== void 0 ? _a : DEFAULT_TITLE,
-                amount: "1",
+                amount: 1 * exports.TOTAL_DECIMALS,
                 signature: parseData.data.signature,
                 user_id: userId,
             },

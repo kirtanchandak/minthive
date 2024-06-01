@@ -141,14 +141,14 @@ router.get("/nextTask", authWorkerMiddleware, async (req, res) => {
       message: "There are no tasks for you to review",
     });
   } else {
-    res.status(411).json({
+    res.json({
       task,
     });
   }
 });
 
 router.post("/signin", async (req, res) => {
-  const hardCodedWalletAddress = "0x3D68b6bE0fA7aeea256cef433373B5a81348ab3a";
+  const hardCodedWalletAddress = "0x3D68b6bE0fA7aeea256cef433373B5a81348ab4d";
 
   const existingUser = await prismaClient.worker.findFirst({
     where: {

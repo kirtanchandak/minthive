@@ -133,14 +133,14 @@ router.get("/nextTask", middleware_1.authWorkerMiddleware, (req, res) => __await
         });
     }
     else {
-        res.status(411).json({
+        res.json({
             task,
         });
     }
 }));
 router.post("/signin", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
-    const hardCodedWalletAddress = "0x3D68b6bE0fA7aeea256cef433373B5a81348ab3a";
+    const hardCodedWalletAddress = "0x3D68b6bE0fA7aeea256cef433373B5a81348ab4d";
     const existingUser = yield prismaClient.worker.findFirst({
         where: {
             address: hardCodedWalletAddress,

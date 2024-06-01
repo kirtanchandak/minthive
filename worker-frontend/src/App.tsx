@@ -1,9 +1,17 @@
 import "./App.css";
+import { Route, Routes } from "react-router-dom";
+import AppBar from "./components/AppBar";
+import Home from "./pages/Home";
+import Tasks from "./pages/Tasks";
 
 function App() {
   return (
     <>
-      <p className="text-red-300">worker f</p>
+      <AppBar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/tasks" element={<Tasks />} />
+      </Routes>
     </>
   );
 }

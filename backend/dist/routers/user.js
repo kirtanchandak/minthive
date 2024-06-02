@@ -13,11 +13,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TOTAL_DECIMALS = void 0;
+const tweetnacl_1 = __importDefault(require("tweetnacl"));
 const client_1 = require("@prisma/client");
 const express_1 = require("express");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const types_1 = require("../types");
 const middleware_1 = require("../middleware");
+const web3_js_1 = require("@solana/web3.js");
 const DEFAULT_TITLE = "Upload thumbanails, to select the best one!";
 const router = (0, express_1.Router)();
 const prismaClient = new client_1.PrismaClient();
@@ -101,10 +103,14 @@ router.post("/task", middleware_1.authMiddleware, (req, res) => __awaiter(void 0
 }));
 router.post("/signin", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _b, _c;
-    const hardCodedWalletAddress = "0x3D68b6bE0fA7aeea256cef433373B5a81348ab4C";
+    const { signature, publicKey } = req.body;
+    const message = new TextEncoder().encode("Sign into minthive");
+    // const message = "Sign into minthive";
+    const result = tweetnacl_1.default.sign.detached.verify(message, new Uint8Array(signature.data), new web3_js_1.PublicKey(publicKey).toBytes());
+    console.log(result);
     const existingUser = yield prismaClient.user.findFirst({
         where: {
-            address: hardCodedWalletAddress,
+            address: publicKey,
         },
     });
     if (existingUser) {
@@ -119,7 +125,7 @@ router.post("/signin", (req, res) => __awaiter(void 0, void 0, void 0, function*
     else {
         const user = yield prismaClient.user.create({
             data: {
-                address: hardCodedWalletAddress,
+                address: publicKey,
             },
         });
         const token = jsonwebtoken_1.default.sign({

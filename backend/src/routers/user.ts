@@ -1,9 +1,10 @@
+import nacl from "tweetnacl";
 import { PrismaClient } from "@prisma/client";
 import { Router } from "express";
 import jwt from "jsonwebtoken";
-import { createTaskInput } from "../types";
+import { createSigninInput, createTaskInput } from "../types";
 import { authMiddleware } from "../middleware";
-import { date } from "zod";
+import { PublicKey } from "@solana/web3.js";
 
 const DEFAULT_TITLE = "Upload thumbanails, to select the best one!";
 
@@ -112,11 +113,21 @@ router.post("/task", authMiddleware, async (req, res) => {
 });
 
 router.post("/signin", async (req, res) => {
-  const hardCodedWalletAddress = "0x3D68b6bE0fA7aeea256cef433373B5a81348ab4C";
+  const { signature, publicKey } = req.body;
+
+  const message = new TextEncoder().encode("Sign into minthive");
+  console.log(signature, publicKey);
+
+  const result = nacl.sign.detached.verify(
+    message,
+    new Uint8Array(signature.data),
+    new PublicKey(publicKey).toBytes()
+  );
+  console.log(result);
 
   const existingUser = await prismaClient.user.findFirst({
     where: {
-      address: hardCodedWalletAddress,
+      address: publicKey,
     },
   });
 
@@ -134,7 +145,7 @@ router.post("/signin", async (req, res) => {
   } else {
     const user = await prismaClient.user.create({
       data: {
-        address: hardCodedWalletAddress,
+        address: publicKey,
       },
     });
     const token = jwt.sign(

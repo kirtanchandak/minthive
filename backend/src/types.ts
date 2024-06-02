@@ -14,3 +14,8 @@ export const createSubmissionInput = z.object({
   taskId: z.string(),
   selection: z.string(),
 });
+
+export const createSigninInput = z.object({
+  signature: z.string(),
+  publicKey: z.string(),
+});
